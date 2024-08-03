@@ -43,7 +43,7 @@ def initialize_driver():
 
 
 # Take a screenshot of the first link for a given question number
-def take_screenshot(driver, question_number, timestamp, output_dir):
+def take_screenshot(driver, question_number, timestamp, png_output_dir):
     print("--------- START -----------")
     print(f"-- Starting process for question number {question_number}...")
 
@@ -125,7 +125,7 @@ def take_screenshot(driver, question_number, timestamp, output_dir):
                 print(f"Error clicking on the alternative link: {e}")
         # Take a screenshot with timestamp
         screenshot_filename = f"screenshot_question_{question_number}_{timestamp}.png"
-        screenshot_path = os.path.join(output_dir, screenshot_filename)
+        screenshot_path = os.path.join(png_output_dir, screenshot_filename)
         print(f"Taking screenshot and saving to {screenshot_path}...")
         driver.save_screenshot(screenshot_path)
         print(f"Screenshot saved: {screenshot_path}")
@@ -155,9 +155,13 @@ def main(start_question, end_question):
     # Get the current timestamp
     timestamp = get_timestamp()
 
-    # Create output directory with timestamp
-    output_dir = os.path.join("./outputs", timestamp)
+    # Create output directory with question range and timestamp
+    output_dir = os.path.join("./outputs", f"{start_question}_{end_question}_{timestamp}")
     os.makedirs(output_dir, exist_ok=True)
+
+    # Create subdirectory for PNG files
+    png_output_dir = os.path.join(output_dir, f"{start_question}_{end_question}_{timestamp}_pngs")
+    os.makedirs(png_output_dir, exist_ok=True)
 
     # Initialize the Chrome driver
     driver = initialize_driver()
@@ -168,7 +172,7 @@ def main(start_question, end_question):
     # Loop through the question numbers and take screenshots
     for question_number in range(start_question, end_question + 1):
         query, current_url, screenshot_filename = take_screenshot(
-            driver, question_number, timestamp, output_dir
+            driver, question_number, timestamp, png_output_dir
         )
         if query and current_url and screenshot_filename:
             sheet.append([question_number, query, current_url])
@@ -187,7 +191,7 @@ def main(start_question, end_question):
         output_dir, f"screenshots_{start_question}_to_{end_question}_{timestamp}.pdf"
     )
     screenshot_paths = [
-        os.path.join(output_dir, filename) for filename in screenshot_filenames
+        os.path.join(png_output_dir, filename) for filename in screenshot_filenames
     ]
     merge_png_to_pdf(screenshot_paths, pdf_filename)
     # Close the browser
