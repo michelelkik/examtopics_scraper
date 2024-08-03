@@ -77,6 +77,8 @@ def take_screenshot(driver, question_number, timestamp, png_output_dir):
                 )
             )
             first_link.click()
+            print("Clicked on the first link!")
+
         except Exception as e:
             try:
                 print(f"Error clicking on the first link: {e}")
@@ -107,7 +109,7 @@ def take_screenshot(driver, question_number, timestamp, png_output_dir):
             print("Clicked on the 'Show Suggested Answer' button.")
         except Exception as e:
             try:
-                print(f"Error clicking on the first link:")  # {e}")
+                print(f"Error clicking to show suggested answer")  # {e}")
                 print("Clicking on the alternative discussion link...")
                 discussion_link_text = f"Exam Professional Machine Learning Engineer topic 1 question {question_number} discussion"
                 discussion_link = WebDriverWait(driver, 2).until(
