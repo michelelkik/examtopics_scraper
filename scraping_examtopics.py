@@ -1,17 +1,18 @@
 import argparse
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
-import time
-import openpyxl
-from datetime import datetime
-from PIL import Image
 import os
+import time
+from datetime import datetime
+
+import openpyxl
+from PIL import Image
+from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 # Initialize the Excel workbook and sheet
@@ -22,9 +23,11 @@ def initialize_excel():
     sheet.append(["Question Number", "Query", "Link"])  # Add headers
     return workbook, sheet
 
+
 # Get the current timestamp
 def get_timestamp():
     return datetime.now().strftime("%Y%m%d_%H%M%S")
+
 
 # Initialize the Chrome driver with options
 def initialize_driver():
@@ -33,6 +36,7 @@ def initialize_driver():
     chrome_options.add_argument("--headless")  # Run in headless mode
     chrome_options.add_argument("--window-size=1080x1920")  # Set window size to ensure full-page screenshot
     return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
 
 # Take a screenshot of the first link for a given question number
 def take_screenshot(driver, question_number, timestamp, output_dir):
@@ -72,12 +76,13 @@ def take_screenshot(driver, question_number, timestamp, output_dir):
             try:
                 print(f"Error clicking on the first link: {e}")
                 print("Clicking on the alternative discussion link...")
-                #discussion_link_text = f"Exam Professional Machine Learning Engineer topic 1 question {question_number} discussion"
-                #discussion_link = WebDriverWait(driver, 2).until(
+                # discussion_link_text = f"Exam Professional Machine Learning Engineer topic 1 question {question_number} discussion"
+                # discussion_link = WebDriverWait(driver, 2).until(
                 #    EC.element_to_be_clickable((By.XPATH, f'//a[@class="discussion-link" and contains(text(), "{discussion_link_text}")]'))
-                #)
-                #discussion_link.click()
-                a_element = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.discussion-link')))
+                # )
+                # discussion_link.click()
+                a_element = WebDriverWait(driver, 2).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, '.discussion-link')))
                 a_element.click()
                 print("Clicked on the <a> element.")
             except Exception as e:
@@ -122,11 +127,13 @@ def take_screenshot(driver, question_number, timestamp, output_dir):
         print(f"An error occurred during the process for question number {question_number}: {e}")
         return None, None, None
 
+
 # Merge PNG files into a PDF
 def merge_png_to_pdf(png_files, pdf_filename):
     images = [Image.open(png) for png in png_files]
     images[0].save(pdf_filename, save_all=True, append_images=images[1:])
     print(f"PDF file saved as '{pdf_filename}'")
+
 
 # Main function
 def main(start_question, end_question):
@@ -164,11 +171,12 @@ def main(start_question, end_question):
 
 if __name__ == "__main__":
     # Create the outputs directory if it doesn't exist
-    output_dir = "../outputs"
+    output_dir = "./outputs"
     os.makedirs(output_dir, exist_ok=True)
 
     # Parse command-line arguments
-    parser = argparse.ArgumentParser(description="Take screenshots of Google search results and save them to an Excel file and PDF.")
+    parser = argparse.ArgumentParser(
+        description="Take screenshots of Google search results and save them to an Excel file and PDF.")
     parser.add_argument("start_question", type=int, help="The starting question number")
     parser.add_argument("end_question", type=int, help="The ending question number")
     args = parser.parse_args()
